@@ -74,7 +74,7 @@ func main() {
 			logger := svc.Logger // shortcut
 			baseFactory := svc.MetricsFactory.Namespace(metrics.NSOptions{Name: "jaeger"})
 			metricsFactory := fork.New("internal",
-				expvar.NewFactory(10), // backend for internal opts
+				expvar.NewFactory(), // expvar backend to report settings
 				baseFactory.Namespace(metrics.NSOptions{Name: "collector"}))
 			version.NewInfoMetrics(metricsFactory)
 
@@ -133,6 +133,9 @@ func main() {
 				}
 				if err := storageFactory.Close(); err != nil {
 					logger.Error("Failed to close storage factory", zap.Error(err))
+				}
+				if err := strategyStoreFactory.Close(); err != nil {
+					logger.Error("Failed to close sampling strategy store factory", zap.Error(err))
 				}
 			})
 			return nil
